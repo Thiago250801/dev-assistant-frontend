@@ -1,73 +1,116 @@
-# React + TypeScript + Vite
+# Dev Assistant Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interface web para um assistente de desenvolvimento com foco em suporte de codigo via chat em tempo real.
 
-Currently, two official plugins are available:
+## Visao Geral
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Este projeto e um frontend em React + TypeScript que consome um backend de streaming para respostas token a token. A UI foi pensada para fluxo rapido de desenvolvimento: escolha de modo, envio de prompt e acompanhamento da resposta em tempo real.
 
-## React Compiler
+## Funcionalidades
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Chat com streaming de resposta (token a token)
+- Renderizacao de markdown nas respostas do assistente
+- Modos de atendimento para tarefas tecnicas:
+  - `explain`
+  - `debug`
+  - `commit`
+  - `refactor`
+- Estado global de conversa com Zustand
+- Interface animada com Framer Motion
 
-## Expanding the ESLint configuration
+## Stack Tecnica
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React 19
+- TypeScript 5
+- Vite 7
+- Tailwind CSS 4
+- Zustand
+- Framer Motion
+- Lucide React
+- React Markdown
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Requisitos
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Node.js 20+
+- npm 10+
+- Backend do assistente rodando localmente
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Como Rodar
+
+1. Instale dependencias:
+
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. Inicie o frontend:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+3. Acesse no navegador:
+
+- `http://localhost:5173`
+
+## Integracao com Backend
+
+O frontend envia requisicoes para:
+
+- `POST http://localhost:3001/api/chat-stream`
+
+Payload enviado:
+
+```json
+{
+  "prompt": "texto do usuario",
+  "mode": "explain"
+}
+```
+
+Formato esperado de resposta:
+
+- Stream com linhas no padrao `data: <token>`
+- Encerramento com token `END`
+
+## Scripts Disponiveis
+
+- `npm run dev`: inicia ambiente de desenvolvimento
+- `npm run build`: gera build de producao
+- `npm run preview`: sobe preview da build
+- `npm run lint`: executa lint
+
+## Estrutura do Projeto
+
+```text
+src/
+  components/
+    Chat.tsx          # Janela de conversa e input
+    Sidebar.tsx       # Seletor de modo
+  services/
+    chatService.ts    # Cliente HTTP + parser de stream
+  store/
+    chatStore.ts      # Estado global (mensagens e modo)
+  types/
+    chat.ts           # Tipos de dominio do chat
+  App.tsx             # Layout principal
+  main.tsx            # Bootstrap da aplicacao
+  index.css           # Estilos globais
+```
+
+## Fluxo da Conversa
+
+1. Usuario envia mensagem no `Chat.tsx`
+2. Mensagem e adicionada no store (`chatStore.ts`)
+3. Frontend abre stream via `streamChat` (`chatService.ts`)
+4. Tokens recebidos atualizam a ultima mensagem do assistente
+5. UI renderiza markdown progressivamente
+
+## Proximos Passos Recomendados
+
+- Mover URL da API para variavel de ambiente (`VITE_API_URL`)
+- Adicionar tratamento de erro visual para falhas de conexao
+- Implementar testes de componentes e store
+- Salvar historico de chat (localStorage ou backend)
+
+
